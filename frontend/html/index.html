@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RVSPly – The Future of Event Management</title>
+  <link rel="stylesheet" href="../style/main.css">
+</head>
+<body>
+
+  <!-- LOGO -->
+  <header class="header">
+    <h1 class="logo" id="logo">RVSPly</h1>
+  </header>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-center">
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#carousel">Features</a></li>
+      <li><a href="dashboard.html">Events</a></li>
+    </ul>
+  </div>
+
+  <div class="nav-auth">
+    <button id="loginBtn" class="btn small">Login</button>
+    <button id="registerBtn" class="btn ghost small">Register</button>
+    <button id="logoutBtn" class="btn ghost small" style="display:none;">Logout</button>
+  </div>
+</nav>
+
+  <!-- ABOUT SECTION -->
+<section id="about" class="about">
+  <div class="about-text">
+    <h2>About RVSPly</h2>
+    <p>
+      RVSPly simplifies event management by digitizing RSVPs, enabling organizers to track attendance,
+      and allowing guests to check in with QR codes. Designed for universities, clubs, and individuals alike.
+    </p>
+  </div>
+</section>
+
+
+  <!-- CAROUSEL SECTION -->
+  <section id="carousel" class="carousel">
+  <div class="slides">
+    <div class="slide active">
+      <img src="../images/carousel1.jpg" alt="Slide 1">
+      <div class="caption">Create and manage events easily.</div>
+    </div>
+    <div class="slide">
+      <img src="../images/carousel2.jpg" alt="Slide 2">
+      <div class="caption">RSVP online with a click.</div>
+    </div>
+    <div class="slide">
+      <img src="../images/carousel3.jpg" alt="Slide 3">
+      <div class="caption">QR-based guest check-in.</div>
+    </div>
+  </div>
+</section>
+
+  
+  <!-- LOGIN MODAL -->
+<div id="loginModal" class="modal-overlay">
+  <div class="modal-box">
+    <h2>Login to Continue</h2>
+    <p>Please login to view and manage events.</p>
+
+    <input type="text" id="loginUsername" placeholder="Username">
+    <input type="password" id="loginPassword" placeholder="Password">
+
+    <div class="modal-actions">
+      <button id="confirmLogin" class="btn small">Login</button>
+      <button id="cancelLogin" class="btn ghost small">Cancel</button>
+    </div>
+
+    <div class="modal-footer">
+      <p>New to <strong>RVSPly</strong>? 
+        <a href="#" id="openRegisterLink">Create an account</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- REGISTER MODAL -->
+<div id="registerModal" class="modal-overlay">
+  <div class="modal-box">
+    <h2>Create an Account</h2>
+    <p>Register to start managing and attending events with RVSPly.</p>
+
+    <input type="text" id="regUsername" placeholder="Username">
+    <input type="email" id="regEmail" placeholder="Email Address">
+    <input type="password" id="regPassword" placeholder="Password">
+
+    <div class="modal-actions">
+      <button id="confirmRegister" class="btn small">Register</button>
+      <button id="cancelRegister" class="btn ghost small">Cancel</button>
+    </div>
+
+    <div class="modal-footer">
+      <p>Already have an account? 
+        <a href="#" id="openLoginLink">Login here</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+  <footer>
+    <p>© 2025 RVSPly – The Future of Event Management.</p>
+  </footer>
+
+
+<script src="../script/main.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const slides = document.querySelectorAll(".slide");
+  const slidesContainer = document.querySelector(".slides");
+  let currentSlide = 0;
+  const totalSlides = slides.length;
+
+  // Auto Slide
+  function showSlide(index) {
+    slidesContainer.style.transform = `translateX(-${index * 100}%)`;
+    slides.forEach((slide, i) => {
+      slide.classList.toggle("active", i === index);
+    });
+  }
+
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    showSlide(currentSlide);
+  }
+
+  let autoSlide = setInterval(nextSlide, 2000); 
+
+  // Pause on hover
+  const carousel = document.querySelector(".carousel");
+  carousel.addEventListener("mouseenter", () => clearInterval(autoSlide));
+  carousel.addEventListener("mouseleave", () => autoSlide = setInterval(nextSlide, 3500));
+
+  // Swipe for mobile
+  let startX = 0;
+  carousel.addEventListener("touchstart", (e) => (startX = e.touches[0].clientX));
+  carousel.addEventListener("touchend", (e) => {
+    const endX = e.changedTouches[0].clientX;
+    if (startX - endX > 50) nextSlide(); // swipe left → next
+    if (endX - startX > 50) {
+      currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+      showSlide(currentSlide); // swipe right → prev
+    }
+  });
+
+  // Initial setup
+  showSlide(currentSlide);
+});
+</script>
+
+</body>
+</html>

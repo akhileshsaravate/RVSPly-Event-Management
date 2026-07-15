@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RVSPly Dashboard</title>
+  <link rel="stylesheet" href="../style/dashboard.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="dashboard-header">
+    <h1 class="dashboard-logo" id="dashLogo">RVSPly</h1>
+    <div class="dashboard-user">
+      <span id="welcomeUser">Welcome, Amaan</span>
+      <button id="logoutBtn" class="btn ghost small">Logout</button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="container">
+    <div class="top-bar">
+      <h2>Your Events</h2>
+      <div class="top-actions">
+        <button id="guestListBtn" class="btn ghost small">Guest List</button>
+        <button id="addEventBtn" class="btn small">+ Add Event</button>
+      </div>
+    </div>
+
+    <div id="eventList" class="event-list">
+      <p class="placeholder">Loading events...</p>
+    </div>
+  </main>
+
+  <!-- MODAL -->
+  <div id="eventModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2 id="modalTitle">Event Details</h2>
+      <div id="modalContent"></div>
+      <div class="modal-actions">
+        <button id="backBtn" class="btn ghost small" style="display:none;">Back</button>
+        <button id="closeModal" class="btn ghost small">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 RVSPly — Event Management Made Simple.</p>
+  </footer>
+
+  <script src="../script/dashboard.js"></script>
+</body>
+</html>

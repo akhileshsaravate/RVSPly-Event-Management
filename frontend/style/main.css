@@ -1,0 +1,360 @@
+:root {
+  --bg: #0f1724;
+  --card: #0b1220;
+  --muted: #9aa6b2;
+  --accent: #4f46e5;
+  --glass: rgba(255, 255, 255, 0.04);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+body {
+  background: linear-gradient(180deg, #071027 0%, #081026 60%);
+  color: #e6eef6;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* HEADER (Logo) */
+.header {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.logo {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent);
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: 0.3s ease;
+}
+
+.logo:hover {
+  color: #706eff;
+}
+
+/* NAVBAR (Refined Center Alignment + Animated Buttons) */
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--card);
+  padding: 1rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+/* Center the main links */
+.nav-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 35px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #e6eef6;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--accent);
+}
+
+/* Auth buttons aligned right */
+.nav-auth {
+  position: absolute;
+  right: 2rem;
+  display: flex;
+  gap: 12px;
+}
+
+/* Button base style */
+.btn.small {
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Login (solid blue) */
+.btn.small {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 0 0 rgba(79, 70, 229, 0);
+}
+
+.btn.small:hover {
+  background: #5b54ff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+}
+
+.btn.small:active {
+  transform: scale(0.96);
+}
+
+/* Register (outlined) */
+.btn.ghost.small {
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+
+.btn.ghost.small:hover {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+}
+
+.btn.ghost.small:active {
+  transform: scale(0.96);
+}
+
+
+/* ABOUT SECTION */
+/* ABOUT SECTION (Polished Card Style) */
+.about {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 1.5rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+}
+
+.about-text {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  max-width: 700px;
+  text-align: center;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-text:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.about h2 {
+  font-size: 2rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.about p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.login-options {
+  margin-top: 1.5rem;
+}
+
+.login-options .btn {
+  margin: 0 10px;
+}
+
+
+/* CAROUSEL (Boxed Version — Cleaned) */
+#carousel {
+  margin-top: 50px;
+  margin-bottom: 60px;
+}
+
+.carousel {
+  position: relative;
+  width: 80%;
+  max-width: 800px;
+  height: 400px;
+  margin: 3rem auto;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--card);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.slides {
+  display: flex;
+   transition: transform 0.8s cubic-bezier(0.45, 0, 0.55, 1);
+  height: 100%;
+  width: 100%;
+}
+
+.slide {
+  min-width: 100%;
+  flex-shrink: 0;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 12px;
+  transition: transform 0.5s ease;
+}
+
+
+.slide img:hover {
+  transform: scale(1.02);
+}
+
+.caption {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+
+/* FOOTER */
+footer {
+  background: var(--card);
+  color: var(--muted);
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.95rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 2rem;
+}
+
+/* LOGIN MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  backdrop-filter: blur(4px);
+}
+
+
+
+.modal-box h2 {
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.modal-box p {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.modal-box input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #e6eef6;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-box {
+  background: var(--card);
+  padding: 2rem;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.3s ease;
+}
+.modal-footer {
+  margin-top: 1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.modal-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 4px;
+  transition: color 0.3s ease;
+}
+
+.modal-footer a:hover {
+  color: #706eff;
+  text-decoration: underline;
+}
+
+.modal-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.modal-footer a:hover {
+  text-decoration: underline;
+  color: #706eff;
+}
