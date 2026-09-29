@@ -1,171 +1,102 @@
 window.addEventListener("DOMContentLoaded", () => {
-  const API_BASE = "http://127.0.0.1:5000";
-
+  const DEMO_MODE = window.RVSPLY_DEMO_MODE !== false;
+  const API_BASE = (window.RVSPLY_API_BASE || "http://127.0.0.1:5000").replace(/\/$/, "");
   const loginModal = document.getElementById("loginModal");
   const registerModal = document.getElementById("registerModal");
-
-  const confirmLogin = document.getElementById("confirmLogin");
-  const cancelLogin = document.getElementById("cancelLogin");
-  const confirmRegister = document.getElementById("confirmRegister");
-  const cancelRegister = document.getElementById("cancelRegister");
-
-  const eventsLink = document.querySelector('a[href="dashboard.html"]');
-  const loginBtn = document.querySelector("#loginBtn");
-  const registerBtn = document.querySelector("#registerBtn");
-  const logoutBtn = document.querySelector("#logoutBtn");
-  const openRegisterLink = document.querySelector("#openRegisterLink");
-  const openLoginLink = document.querySelector("#openLoginLink");
-
-  // ---------------------------------------------------------
-  // Update navbar buttons
-  // ---------------------------------------------------------
+  const loginBtn = document.getElementById("loginBtn");
+  const registerBtn = document.getElementById("registerBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
   const updateNavState = () => {
     const loggedIn = localStorage.getItem("loggedIn") === "true";
-    if (loggedIn) {
-      loginBtn.style.display = "none";
-      registerBtn.style.display = "none";
-      logoutBtn.style.display = "inline-block";
-    } else {
-      loginBtn.style.display = "inline-block";
-      registerBtn.style.display = "inline-block";
-      logoutBtn.style.display = "none";
-    }
+    loginBtn.style.display = loggedIn ? "none" : "inline-block";
+    registerBtn.style.display = loggedIn ? "none" : "inline-block";
+    logoutBtn.style.display = loggedIn ? "inline-block" : "none";
   };
   updateNavState();
 
-  // ---------------------------------------------------------
-  // "Events" link → require login
-  // ---------------------------------------------------------
-  eventsLink?.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (localStorage.getItem("loggedIn") === "true") {
-      window.location.href = "dashboard.html";
-    } else {
-      loginModal.style.display = "flex";
-    }
-  });
-
-  // ---------------------------------------------------------
-  // Login Modal open
-  // ---------------------------------------------------------
-  loginBtn?.addEventListener("click", () => {
+  document.querySelector('a[href="dashboard.html"]')?.addEventListener("click", (event) => {
+    if (localStorage.getItem("loggedIn") === "true") return;
+    event.preventDefault();
     loginModal.style.display = "flex";
   });
+  loginBtn.addEventListener("click", () => loginModal.style.display = "flex");
+  registerBtn.addEventListener("click", () => registerModal.style.display = "flex");
 
-  // ---------------------------------------------------------
-  // Register Modal open
-  // ---------------------------------------------------------
-  registerBtn?.addEventListener("click", () => {
-    registerModal.style.display = "flex";
-  });
-
-  // ---------------------------------------------------------
-  // LOGIN (🔥 now stores email correctly)
-  // ---------------------------------------------------------
-  confirmLogin?.addEventListener("click", async () => {
+  document.getElementById("confirmLogin").addEventListener("click", async () => {
     const username = document.getElementById("loginUsername").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-
-    if (!username || !password) return alert("Please fill in both fields.");
-
+    const password = document.getElementById("loginPassword").value;
+    if (!username || !password) return alert("Enter your username and password.");
+    if (DEMO_MODE) {
+      const accounts = JSON.parse(localStorage.getItem("rvsply_demo_accounts") || "[]");
+      const account = accounts.find((item) => item.username.toLowerCase() === username.toLowerCase() && item.password === password);
+      if (!account) return alert("Demo sign-in failed. Create an account first using Register.");
+      localStorage.setItem("username", account.username);
+      localStorage.setItem("email", account.email);
+      localStorage.setItem("user_id", account.id);
+      localStorage.setItem("loggedIn", "true");
+      window.location.href = "dashboard.html";
+      return;
+    }
     try {
-      const res = await fetch(`${API_BASE}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        localStorage.setItem("loggedIn", "true");
-        localStorage.setItem("username", data.username);
-        localStorage.setItem("user_id", data.user_id);
-        localStorage.setItem("email", (data.email || "").toLowerCase()); // 🔥 Store MIT email
-
-        loginModal.style.display = "none";
-        updateNavState();
-        window.location.href = "dashboard.html";
-      } else {
-        alert(data.error || "Login failed.");
-      }
-    } catch (err) {
-      alert("Server error, try again later.");
+      const response = await fetch(`${API_BASE}/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
+      const data = await response.json();
+      if (!response.ok) return alert(data.error || "Sign-in failed.");
+      localStorage.setItem("loggedIn", "true");
+      localStorage.setItem("username", data.username);
+      localStorage.setItem("user_id", data.user_id);
+      localStorage.setItem("email", (data.email || "").toLowerCase());
+      window.location.href = "dashboard.html";
+    } catch {
+      alert(`Could not reach the API at ${API_BASE}.`);
     }
   });
 
-  // ---------------------------------------------------------
-  // REGISTER (🔥 NOW SUPPORTS EMAIL)
-  // ---------------------------------------------------------
-  confirmRegister?.addEventListener("click", async () => {
+  document.getElementById("confirmRegister").addEventListener("click", async () => {
     const username = document.getElementById("regUsername").value.trim();
     const email = document.getElementById("regEmail").value.trim().toLowerCase();
-    const password = document.getElementById("regPassword").value.trim();
-
-    if (!username || !email || !password)
-      return alert("Please fill all fields.");
-
-    // Simple email check
-    if (!email.includes("@") || !email.includes(".")) {
-      return alert("Enter a valid email.");
+    const password = document.getElementById("regPassword").value;
+    if (!username || !email || !password) return alert("Complete all fields.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert("Enter a valid email address.");
+    if (DEMO_MODE) {
+      const accounts = JSON.parse(localStorage.getItem("rvsply_demo_accounts") || "[]");
+      if (accounts.some((item) => item.email === email || item.username.toLowerCase() === username.toLowerCase())) return alert("That username or email is already registered in this browser.");
+      accounts.push({ id: `demo-${Date.now()}`, username, email, password });
+      localStorage.setItem("rvsply_demo_accounts", JSON.stringify(accounts));
+      alert("Demo account created in this browser. You can now sign in.");
+      registerModal.style.display = "none";
+      loginModal.style.display = "flex";
+      return;
     }
-
     try {
-      const res = await fetch(`${API_BASE}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Registration successful! You can now log in.");
-        registerModal.style.display = "none";
-        loginModal.style.display = "flex";
-      } else {
-        alert(data.error || "Registration failed.");
-      }
-    } catch (err) {
-      alert("Server error, try again later.");
+      const response = await fetch(`${API_BASE}/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, email, password }) });
+      const data = await response.json();
+      if (!response.ok) return alert(data.error || "Registration failed.");
+      alert("Account created. You can now sign in.");
+      registerModal.style.display = "none";
+      loginModal.style.display = "flex";
+    } catch {
+      alert(`Could not reach the API at ${API_BASE}.`);
     }
   });
 
-  // ---------------------------------------------------------
-  // Cancel buttons
-  // ---------------------------------------------------------
-  cancelLogin?.addEventListener("click", () => (loginModal.style.display = "none"));
-  cancelRegister?.addEventListener("click", () => (registerModal.style.display = "none"));
+  document.getElementById("cancelLogin").addEventListener("click", () => loginModal.style.display = "none");
+  document.getElementById("cancelRegister").addEventListener("click", () => registerModal.style.display = "none");
+  document.getElementById("openRegisterLink").addEventListener("click", (event) => { event.preventDefault(); loginModal.style.display = "none"; registerModal.style.display = "flex"; });
+  document.getElementById("openLoginLink").addEventListener("click", (event) => { event.preventDefault(); registerModal.style.display = "none"; loginModal.style.display = "flex"; });
+  window.addEventListener("click", (event) => { if (event.target === loginModal) loginModal.style.display = "none"; if (event.target === registerModal) registerModal.style.display = "none"; });
+  logoutBtn.addEventListener("click", () => { localStorage.removeItem("loggedIn"); localStorage.removeItem("username"); localStorage.removeItem("user_id"); localStorage.removeItem("email"); updateNavState(); });
 
-  // ---------------------------------------------------------
-  // Click outside to close modals
-  // ---------------------------------------------------------
-  window.addEventListener("click", (e) => {
-    if (e.target === loginModal) loginModal.style.display = "none";
-    if (e.target === registerModal) registerModal.style.display = "none";
-  });
-
-  // ---------------------------------------------------------
-  // Switch login/register from links
-  // ---------------------------------------------------------
-  openRegisterLink?.addEventListener("click", (e) => {
-    e.preventDefault();
-    loginModal.style.display = "none";
-    registerModal.style.display = "flex";
-  });
-
-  openLoginLink?.addEventListener("click", (e) => {
-    e.preventDefault();
-    registerModal.style.display = "none";
-    loginModal.style.display = "flex";
-  });
-
-  // ---------------------------------------------------------
-  // Logout
-  // ---------------------------------------------------------
-  logoutBtn?.addEventListener("click", () => {
-    localStorage.clear();
-    updateNavState();
-    alert("You have been logged out.");
-  });
+  const slides = [...document.querySelectorAll(".slide")];
+  const slideTrack = document.querySelector(".slides");
+  const carousel = document.querySelector(".carousel");
+  if (slides.length && slideTrack && carousel) {
+    let current = 0;
+    const show = (index) => { current = (index + slides.length) % slides.length; slideTrack.style.transform = `translateX(-${current * 100}%)`; slides.forEach((slide, i) => slide.classList.toggle("active", i === current)); };
+    let timer = setInterval(() => show(current + 1), 4500);
+    carousel.addEventListener("mouseenter", () => clearInterval(timer));
+    carousel.addEventListener("mouseleave", () => { clearInterval(timer); timer = setInterval(() => show(current + 1), 4500); });
+    let startX = 0;
+    carousel.addEventListener("touchstart", (event) => { startX = event.touches[0].clientX; }, { passive: true });
+    carousel.addEventListener("touchend", (event) => { const delta = event.changedTouches[0].clientX - startX; if (Math.abs(delta) > 45) show(current + (delta < 0 ? 1 : -1)); });
+  }
 });

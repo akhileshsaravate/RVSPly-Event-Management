@@ -1,53 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RVSPly Dashboard</title>
-  <link rel="stylesheet" href="../style/dashboard.css" />
-</head>
-<body>
-
-  <!-- HEADER -->
-  <header class="dashboard-header">
-    <h1 class="dashboard-logo" id="dashLogo">RVSPly</h1>
-    <div class="dashboard-user">
-      <span id="welcomeUser">Welcome, Amaan</span>
-      <button id="logoutBtn" class="btn ghost small">Logout</button>
-    </div>
-  </header>
-
-  <!-- MAIN CONTENT -->
-  <main class="container">
-    <div class="top-bar">
-      <h2>Your Events</h2>
-      <div class="top-actions">
-        <button id="guestListBtn" class="btn ghost small">Guest List</button>
-        <button id="addEventBtn" class="btn small">+ Add Event</button>
-      </div>
-    </div>
-
-    <div id="eventList" class="event-list">
-      <p class="placeholder">Loading events...</p>
-    </div>
-  </main>
-
-  <!-- MODAL -->
-  <div id="eventModal" class="modal-overlay">
-    <div class="modal-box">
-      <h2 id="modalTitle">Event Details</h2>
-      <div id="modalContent"></div>
-      <div class="modal-actions">
-        <button id="backBtn" class="btn ghost small" style="display:none;">Back</button>
-        <button id="closeModal" class="btn ghost small">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <p>© 2025 RVSPly — Event Management Made Simple.</p>
-  </footer>
-
-  <script src="../script/dashboard.js"></script>
-</body>
-</html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#10141d"><title>Events — RVSPly</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="../style/dashboard.css"></head>
+<body class="dashboard-page">
+  <div class="demo-banner"><span class="status-dot"></span> Frontend preview <span class="banner-divider">·</span> Demo data is saved in this browser</div>
+  <header class="dashboard-header"><a class="brand" href="index.html"><span class="brand-mark">r</span><span>rsvp<span class="brand-accent">ly</span></span></a><div class="dashboard-user"><span class="user-avatar" id="userAvatar">R</span><span id="welcomeUser">Welcome</span><button id="logoutBtn" class="btn btn-text">Log out</button></div></header>
+  <main class="container"><section class="dashboard-intro"><div><div class="section-kicker">YOUR CAMPUS, YOUR PLANS</div><h1>Find your <em>thing.</em></h1><p>Good events. Good people. A place to be.</p></div><button id="addEventBtn" class="btn btn-primary btn-large">Create an event <span>＋</span></button></section><div class="event-toolbar"><div><h2>Coming up</h2><span class="event-count" id="eventCount">A few good plans</span></div><button id="guestListBtn" class="btn btn-quiet">See all RSVPs <span>↗</span></button></div><div id="eventList" class="event-list"><p class="placeholder">Getting the good stuff...</p></div></main>
+  <footer class="dashboard-footer"><span>RVSPly</span><span>Make time for what brings us together.</span><a href="index.html">Back to home ↗</a></footer>
+  <div id="eventModal" class="modal-overlay"><section class="modal-box event-modal" role="dialog" aria-modal="true"><button class="modal-close" id="closeModal" aria-label="Close">×</button><div class="modal-kicker">RVSPly EVENTS</div><h2 id="modalTitle">Event details</h2><div id="modalContent"></div></section></div>
+  <script src="../script/config.js"></script><script src="../script/dashboard.js"></script>
+</body></html>
