@@ -80,8 +80,3 @@ Agree on the API contract and database schema, connect the UI actions to the API
 
 The Flask application and pinned Python dependencies are retained under `backend/`. They are not necessary to open the frontend preview. Backend database configuration/schema and deployment still need work before full-stack use.
 
-## Contributors
-
-- Amaan Shaikh
-- Tejas Bafna
-- Ishwarsingh Rao
