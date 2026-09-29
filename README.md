@@ -2,6 +2,16 @@
 
 RVSPly is a campus event discovery and RSVP experience. The **frontend phase is ready for demonstration**: it includes a responsive landing page, preview account flow, event dashboard, event creation/editing/deletion, RSVP selection, guest lists, and a saved theme preference.
 
+## Project team
+
+**Project by**
+
+- Akhilesh Saravate (1132231320)
+- Jay Mokal (1132230864)
+- Chinmay Pophale (1132231116)
+
+**Under the guidance of Navnath Shete Sir**
+
 ## Current project phase
 
 The frontend currently runs in **preview mode** and stores its sample account, events, and RSVP responses in the browser's local storage. This makes it possible to demonstrate the interface without installing Python, PostgreSQL, or starting the backend. Preview data stays in that browser and is not a real account or shared database record.
@@ -52,8 +62,6 @@ backend/
   requirements.txt
 ```
 
-
 ## Existing backend prototype
 
 The Flask application and pinned Python dependencies are retained under `backend/`. They are not necessary to open the frontend preview. Backend database configuration/schema and deployment still need work before full-stack use.
-
