@@ -52,29 +52,6 @@ backend/
   requirements.txt
 ```
 
-## Viva introduction
-
-“RVSPly is a campus event management frontend that helps people discover events, create event listings, and respond to invitations. The current deliverable is the frontend preview, built with HTML, CSS, and JavaScript. It includes a landing page and interactive event dashboard. Preview data is saved locally in the browser so the frontend can be demonstrated independently. During the next month, we plan to connect it to the Flask backend and PostgreSQL, then deploy the frontend, API, and database on cloud services.”
-
-### Likely viva questions
-
-**What have you completed so far?**
-The responsive frontend: landing page, preview sign-in flow, event dashboard, event forms, RSVP interaction, guest list, and theme toggle.
-
-**Why does the app work without the backend right now?**
-Preview mode uses browser local storage and sample data. This supports a frontend demonstration while backend integration is still in progress.
-
-**Is the preview login secure or shared across users?**
-No. It is only a local demonstration. A real login must be handled by the backend, use secure password hashing and session/token controls, and communicate over HTTPS.
-
-**What is planned for cloud computing?**
-We plan to host the static frontend on a web host/CDN, deploy the Flask API as a cloud application, and use a managed PostgreSQL database. This keeps the interface, application logic, and data tiers separate. Those services are planned and are not yet deployed by this repository.
-
-**How will the frontend connect to the backend?**
-JavaScript will send HTTP requests to Flask API endpoints. The base API URL is configured in `frontend/script/config.js`; the next integration phase will connect the forms and dashboard actions to those endpoints.
-
-**What is the next step?**
-Agree on the API contract and database schema, connect the UI actions to the API, then configure and deploy the API and database in the selected cloud environment.
 
 ## Existing backend prototype
 
