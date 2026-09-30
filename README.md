@@ -16,7 +16,7 @@ RVSPly is a campus event discovery and RSVP experience. The **frontend phase is 
 
 The frontend currently runs in **preview mode** and stores its sample account, events, and RSVP responses in the browser's local storage. This makes it possible to demonstrate the interface without installing Python, PostgreSQL, or starting the backend. Preview data stays in that browser and is not a real account or shared database record.
 
-The backend and cloud integration are the next project phase and are planned for the coming month. The existing Flask backend is in `backend/`, but it is not required for the frontend preview. Do not describe the preview login or events as production authentication or cloud-backed data.
+A preliminary Flask backend prototype is included in `backend/` to show the planned server-side direction. Full frontend-to-backend integration, database setup, and cloud deployment are the next project phase and are planned for the coming month. The frontend preview works independently; its sample login and events are browser-local demo data, not production authentication or cloud-backed records.
 
 ## Run the frontend preview
 
@@ -62,6 +62,6 @@ backend/
   requirements.txt
 ```
 
-## Existing backend prototype
+## Backend work in progress
 
-The Flask application and pinned Python dependencies are retained under `backend/`. They are not necessary to open the frontend preview. Backend database configuration/schema and deployment still need work before full-stack use.
+A starter Flask API prototype and its dependency list are present under `backend/` as a preview of upcoming server-side work. The backend is not yet integrated with the frontend preview. Database schema/configuration, API integration, security hardening, and cloud deployment are planned for the next project phase.
