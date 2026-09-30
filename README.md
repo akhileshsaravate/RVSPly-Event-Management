@@ -2,6 +2,8 @@
 
 RVSPly is a campus event discovery and RSVP experience. The **frontend phase is ready for demonstration**: it includes a responsive landing page, preview account flow, event dashboard, event creation/editing/deletion, RSVP selection, guest lists, and a saved theme preference.
 
+**Live website:** [Open the RVSPly frontend preview](https://akhileshsaravate.github.io/RVSPly-Event-Management/html/)
+
 ## Project team
 
 **Project by**
