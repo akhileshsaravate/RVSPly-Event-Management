@@ -65,3 +65,8 @@ backend/
 ## Backend work in progress
 
 A starter Flask API prototype and its dependency list are present under `backend/` as a preview of upcoming server-side work. The backend is not yet integrated with the frontend preview. Database schema/configuration, API integration, security hardening, and cloud deployment are planned for the next project phase.
+
+## Landing page photography
+
+- Campus club fair photograph: [Unsplash photo](https://unsplash.com/photos/a-group-of-people-sitting-on-the-grass-88Z2PpC5jqU)
+- Student organization fair photograph: [Unsplash photo](https://unsplash.com/photos/a-group-of-people-at-an-outdoor-event-m17nqsThLeY)
