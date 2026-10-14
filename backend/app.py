@@ -6,6 +6,7 @@ import bcrypt, pandas as pd
 from io import BytesIO
 import qrcode, base64
 import os
+from urllib.parse import urlencode, urlsplit, urlunsplit
 
 app = Flask(__name__)
 frontend_origins = os.getenv("FRONTEND_ORIGINS", "*")
@@ -29,6 +30,26 @@ def get_db_connection():
         password=os.getenv("DB_PASSWORD", "root"),
         port=int(os.getenv("DB_PORT", "5432")),
     )
+
+
+def build_checkin_url(token):
+    frontend_url = os.getenv(
+        "FRONTEND_URL",
+        "http://127.0.0.1:5500/frontend/html/index.html",
+    )
+    parts = urlsplit(frontend_url)
+    path = parts.path.rstrip("/")
+
+    if path.endswith("/index.html"):
+        path = path.rsplit("/", 1)[0] + "/checkin.html"
+    elif path.endswith("/html"):
+        path += "/checkin.html"
+    elif not path:
+        path = "/html/checkin.html"
+    else:
+        path += "/html/checkin.html"
+
+    return urlunsplit((parts.scheme, parts.netloc, path, "", urlencode({"token": token})))
 
 
 @app.get("/health")
@@ -325,15 +346,14 @@ def rsvp():
         cur.execute("""
             INSERT INTO guests (event_id, name, status)
             VALUES (%s, %s, %s)
-            RETURNING id
+            RETURNING id, checkin_token
         """, (event_id, name, status))
 
-        guest_id = cur.fetchone()[0]
+        guest_id, checkin_token = cur.fetchone()
         conn.commit()
         cur.close()
 
-        frontend_url = os.getenv("FRONTEND_URL", "http://127.0.0.1:5500/frontend/html/index.html")
-        qr_data = f"{frontend_url}?guest_id={guest_id}&event_id={event_id}"
+        qr_data = build_checkin_url(str(checkin_token))
         qr_img = qrcode.make(qr_data)
 
         buf = BytesIO()
@@ -343,8 +363,8 @@ def rsvp():
         return jsonify({
             "message": "RSVP saved",
             "guest_id": guest_id,
+            "qr_link": qr_data,
             "qr_image": f"data:image/png;base64,{qr_b64}",
-            "qr_link": qr_data
         })
 
     except Exception as e:
@@ -352,6 +372,96 @@ def rsvp():
         print("[RSVP ERROR]:", e)
         return jsonify({"error": str(e)}), 500
 
+    finally:
+        conn.close()
+
+
+@app.route("/checkin/lookup", methods=["POST"])
+def get_checkin():
+    token = (request.get_json() or {}).get("token")
+    if not token:
+        return jsonify({"error": "This RSVP QR code is missing its ticket key."}), 400
+
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("""
+            SELECT g.id AS guest_id, g.event_id, g.name, g.status,
+                   g.checked_in_at, e.title AS event_title, e.date AS event_date,
+                   e.time AS event_time, e.venue, e.created_by
+            FROM guests g
+            JOIN events e ON e.id = g.event_id
+            WHERE g.checkin_token = %s
+        """, (token,))
+        row = cur.fetchone()
+        cur.close()
+        if not row:
+            return jsonify({"error": "This RSVP QR code is not valid."}), 404
+
+        details = dict(row)
+        for field in ("event_date", "event_time", "checked_in_at"):
+            if details.get(field) is not None:
+                details[field] = details[field].isoformat()
+        return jsonify(details)
+    except Exception as e:
+        print("[CHECKIN LOOKUP ERROR]:", e)
+        return jsonify({"error": "Could not load this RSVP."}), 500
+    finally:
+        conn.close()
+
+
+@app.route("/checkin/confirm", methods=["POST"])
+def confirm_checkin():
+    data = request.get_json() or {}
+    token = data.get("token")
+    user_id = data.get("user_id")
+    if not token:
+        return jsonify({"error": "This RSVP QR code is missing its ticket key."}), 400
+    if not user_id:
+        return jsonify({"error": "Log in as the event organizer to confirm check-in."}), 401
+
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT e.created_by, g.checked_in_at, g.status
+            FROM guests g
+            JOIN events e ON e.id = g.event_id
+            WHERE g.checkin_token = %s
+        """, (token,))
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "This RSVP QR code is not valid."}), 404
+
+        organizer_id, checked_in_at, rsvp_status = row
+        if str(organizer_id) != str(user_id):
+            return jsonify({"error": "Only the event organizer can confirm check-in."}), 403
+        if rsvp_status == "Not Going":
+            return jsonify({"error": "This RSVP is marked Not Going and cannot be checked in."}), 409
+
+        if checked_in_at is None:
+            cur.execute("""
+                UPDATE guests
+                SET checked_in_at = NOW()
+                WHERE checkin_token = %s
+                RETURNING checked_in_at
+            """, (token,))
+            checked_in_at = cur.fetchone()[0]
+            conn.commit()
+            already_checked_in = False
+        else:
+            already_checked_in = True
+
+        cur.close()
+        return jsonify({
+            "message": "Guest is checked in.",
+            "checked_in_at": checked_in_at.isoformat(),
+            "already_checked_in": already_checked_in,
+        })
+    except Exception as e:
+        conn.rollback()
+        print("[CHECKIN CONFIRM ERROR]:", e)
+        return jsonify({"error": "Could not confirm check-in."}), 500
     finally:
         conn.close()
 
@@ -364,7 +474,7 @@ def get_all_guests():
     try:
         cur = conn.cursor(cursor_factory=RealDictCursor)
         cur.execute("""
-            SELECT g.id, g.name, g.status, g.time_stamp,
+            SELECT g.id, g.name, g.status, g.time_stamp, g.checked_in_at,
                    e.title AS event_title, e.id AS event_id
             FROM guests g
             JOIN events e ON g.event_id = e.id

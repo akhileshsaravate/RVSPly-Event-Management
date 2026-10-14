@@ -8,6 +8,13 @@ window.addEventListener("DOMContentLoaded", () => {
   const registerStatus = document.getElementById("registerStatus");
   const confirmRegister = document.getElementById("confirmRegister");
   const logoutBtn = document.getElementById("logoutBtn");
+  const getPostLoginDestination = () => {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const token = params.get("token");
+    return params.get("return_to") === "checkin" && token
+      ? `checkin.html#token=${encodeURIComponent(token)}`
+      : "dashboard.html";
+  };
   const updateNavState = () => {
     const loggedIn = localStorage.getItem("loggedIn") === "true";
     loginBtn.style.display = loggedIn ? "none" : "inline-block";
@@ -15,6 +22,10 @@ window.addEventListener("DOMContentLoaded", () => {
     logoutBtn.style.display = loggedIn ? "inline-block" : "none";
   };
   updateNavState();
+  const returnParams = new URLSearchParams(window.location.hash.slice(1));
+  if (returnParams.get("return_to") === "checkin") {
+    loginModal.style.display = "flex";
+  }
 
   document.querySelector('a[href="dashboard.html"]')?.addEventListener("click", (event) => {
     if (localStorage.getItem("loggedIn") === "true") return;
@@ -36,7 +47,7 @@ window.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("email", account.email);
       localStorage.setItem("user_id", account.id);
       localStorage.setItem("loggedIn", "true");
-      window.location.href = "dashboard.html";
+      window.location.href = getPostLoginDestination();
       return;
     }
     try {
@@ -47,7 +58,7 @@ window.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("username", data.username);
       localStorage.setItem("user_id", data.user_id);
       localStorage.setItem("email", (data.email || "").toLowerCase());
-      window.location.href = "dashboard.html";
+      window.location.href = getPostLoginDestination();
     } catch {
       alert(`Could not reach the API at ${API_BASE}.`);
     }

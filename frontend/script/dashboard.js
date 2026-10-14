@@ -109,14 +109,14 @@ window.addEventListener("DOMContentLoaded", () => {
         document.getElementById("qrArea").innerHTML = '<p class="demo-note">Demo RSVP saved in this browser. QR check-in will be connected during backend development.</p>';
         return;
       }
-      try { const response = await fetch(`${API_BASE}/rsvp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event_id: id, name, status }) }); const result = await response.json(); document.getElementById("qrArea").innerHTML = `<p>Scan this QR at entry:</p><img src="${result.qr_image}" class="qr-image" alt="RSVP check-in QR code">`; } catch { alert("Could not submit RSVP."); }
+      try { const response = await fetch(`${API_BASE}/rsvp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ event_id: id, name, status }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || "Could not submit RSVP."); document.getElementById("qrArea").innerHTML = `<p>Show this RSVP QR to the event organizer at the entrance:</p><img src="${result.qr_image}" class="qr-image" alt="RSVP check-in QR code">`; } catch (error) { alert(error.message || "Could not submit RSVP."); }
     });
   }
   async function viewGuests(id) {
     const guests = DEMO_MODE ? loadDemoGuests() : await (await fetch(`${API_BASE}/guests`)).json();
     const list = guests.filter((guest) => String(guest.event_id) === String(id));
     modalTitle.textContent = "Guest list";
-    modalContent.innerHTML = list.length ? `<div class="guest-list">${list.map((guest) => `<div class="guest-item"><strong>${guest.name}</strong><span>${guest.status}</span></div>`).join("")}</div>` : '<p class="demo-note">No RSVPs yet. Be the first to respond.</p>';
+    modalContent.innerHTML = list.length ? `<div class="guest-list">${list.map((guest) => `<div class="guest-item"><div><strong>${guest.name}</strong><p>${guest.status}</p></div><span>${guest.checked_in_at ? "Checked in" : "Not checked in"}</span></div>`).join("")}</div>` : '<p class="demo-note">No RSVPs yet. Be the first to respond.</p>';
     showModal();
   }
   async function deleteEvent(id) {

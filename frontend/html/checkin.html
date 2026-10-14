@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10141d">
+  <title>RSVP Check-in — RVSPly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style/dashboard.css">
+</head>
+<body class="dashboard-page checkin-page">
+  <div class="demo-banner"><span class="status-dot"></span> RVSPly event check-in</div>
+  <header class="dashboard-header">
+    <a class="brand" href="index.html"><span class="brand-mark">r</span><span>rsvp<span class="brand-accent">ly</span></span></a>
+    <a class="btn btn-text" href="dashboard.html">Back to events</a>
+  </header>
+  <main class="container checkin-main">
+    <section class="checkin-card" aria-labelledby="checkinTitle">
+      <div class="section-kicker">RVSPly CHECK-IN</div>
+      <h1 id="checkinTitle">Confirm arrival</h1>
+      <p id="checkinStatus" class="checkin-status" role="status" aria-live="polite">Loading this RSVP…</p>
+      <div id="checkinDetails" class="checkin-details" hidden></div>
+      <p id="checkinHelp" class="checkin-help"></p>
+      <a id="organizerLogin" class="btn btn-quiet" hidden>Log in as the event organizer</a>
+      <button id="confirmCheckin" class="btn btn-primary btn-large" hidden>Confirm check-in</button>
+    </section>
+  </main>
+  <footer class="dashboard-footer"><span>RVSPly</span><span>Make time for what brings us together.</span></footer>
+  <script src="../script/config.js"></script>
+  <script src="../script/checkin.js"></script>
+</body>
+</html>
