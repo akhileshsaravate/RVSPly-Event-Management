@@ -2,7 +2,7 @@
 
 RVSPly is a campus event discovery and RSVP app. The static frontend calls a Flask API backed by PostgreSQL for registration, login, events, RSVPs, and guest lists.
 
-**Live website:** [Open the RVSPly frontend preview](https://akhileshsaravate.github.io/RVSPly-Event-Management/html/)
+**Live website:** [Open the RVSPly cloud demo](https://rvsply-event-management-demo.pages.dev/html/)
 
 ## Project team
 
@@ -96,7 +96,7 @@ The free Render web service sleeps after 15 minutes of inactivity and can take a
 
 ## Deploy the frontend on Cloudflare Pages
 
-Create a Pages project using the `cloud-deployment` branch. Set the project root to `frontend`; no build command is required, and the output directory is `.`. The landing page URL ends with `/html/index.html`.
+The frontend is published on Cloudflare Pages with a direct upload. Upload the contents of the `frontend` directory (including `index.html`, `html`, `images`, `script`, and `style`). There is no build command. The landing page is served at `/html/`.
 
 ## Project structure
 
@@ -104,7 +104,7 @@ Create a Pages project using the `cloud-deployment` branch. Set the project root
 frontend/
   html/       Landing page and event dashboard
   images/     Frontend image assets
-  script/     UI behavior, API configuration, and preview data flow
+  script/     UI behavior and API configuration
   style/      Responsive page styles
 backend/
   app.py      Flask API
