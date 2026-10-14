@@ -5,6 +5,8 @@ window.addEventListener("DOMContentLoaded", () => {
   const registerModal = document.getElementById("registerModal");
   const loginBtn = document.getElementById("loginBtn");
   const registerBtn = document.getElementById("registerBtn");
+  const registerStatus = document.getElementById("registerStatus");
+  const confirmRegister = document.getElementById("confirmRegister");
   const logoutBtn = document.getElementById("logoutBtn");
   const updateNavState = () => {
     const loggedIn = localStorage.getItem("loggedIn") === "true";
@@ -51,31 +53,45 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.getElementById("confirmRegister").addEventListener("click", async () => {
+  const setRegisterStatus = (message, state = "info") => {
+    registerStatus.textContent = message;
+    registerStatus.dataset.state = state;
+    registerStatus.setAttribute("role", state === "error" ? "alert" : "status");
+  };
+  ["regUsername", "regEmail", "regPassword"].forEach((id) => document.getElementById(id).addEventListener("input", () => setRegisterStatus("")));
+  confirmRegister.addEventListener("click", async () => {
     const username = document.getElementById("regUsername").value.trim();
     const email = document.getElementById("regEmail").value.trim().toLowerCase();
     const password = document.getElementById("regPassword").value;
-    if (!username || !email || !password) return alert("Complete all fields.");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert("Enter a valid email address.");
+    if (!username || !email || !password) return setRegisterStatus("Complete all fields.", "error");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setRegisterStatus("Enter a valid email address.", "error");
     if (DEMO_MODE) {
       const accounts = JSON.parse(localStorage.getItem("rvsply_demo_accounts") || "[]");
-      if (accounts.some((item) => item.email === email || item.username.toLowerCase() === username.toLowerCase())) return alert("That username or email is already registered in this browser.");
+      if (accounts.some((item) => item.email === email || item.username.toLowerCase() === username.toLowerCase())) return setRegisterStatus("That username or email is already registered in this browser.", "error");
       accounts.push({ id: `demo-${Date.now()}`, username, email, password });
       localStorage.setItem("rvsply_demo_accounts", JSON.stringify(accounts));
-      alert("Demo account created in this browser. You can now sign in.");
+      setRegisterStatus("Account created. Sign in to continue.", "success");
       registerModal.style.display = "none";
       loginModal.style.display = "flex";
       return;
     }
+    const originalButton = confirmRegister.innerHTML;
+    confirmRegister.disabled = true;
+    confirmRegister.textContent = "Creating account…";
+    setRegisterStatus("Connecting to the cloud service. The free API may take a moment to wake up.");
     try {
       const response = await fetch(`${API_BASE}/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, email, password }) });
-      const data = await response.json();
-      if (!response.ok) return alert(data.error || "Registration failed.");
-      alert("Account created. You can now sign in.");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) return setRegisterStatus(data.error || "Registration failed. Please try again.", "error");
+      document.getElementById("loginUsername").value = username;
+      setRegisterStatus("Account created. Sign in to continue.", "success");
       registerModal.style.display = "none";
       loginModal.style.display = "flex";
     } catch {
-      alert(`Could not reach the API at ${API_BASE}.`);
+      setRegisterStatus("Could not reach the cloud service. Wait a moment and try again.", "error");
+    } finally {
+      confirmRegister.disabled = false;
+      confirmRegister.innerHTML = originalButton;
     }
   });
 
