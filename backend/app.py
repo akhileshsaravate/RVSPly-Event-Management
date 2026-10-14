@@ -5,20 +5,35 @@ from psycopg2.extras import RealDictCursor
 import bcrypt, pandas as pd
 from io import BytesIO
 import qrcode, base64
+import os
 
 app = Flask(__name__)
-CORS(app)
+frontend_origins = os.getenv("FRONTEND_ORIGINS", "*")
+CORS(app, origins=[origin.strip() for origin in frontend_origins.split(",") if origin.strip()])
 
 # ==========================================================
 # DATABASE CONNECTION
 # ==========================================================
 def get_db_connection():
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        if database_url.startswith("postgres://"):
+            database_url = "postgresql://" + database_url[len("postgres://"):]
+        return psycopg2.connect(database_url)
+
+    # Local development fallback; set DATABASE_URL in cloud deployments.
     return psycopg2.connect(
-        host="localhost",
-        database="rvsply_db",
-        user="postgres",
-        password="root"
+        host=os.getenv("DB_HOST", "localhost"),
+        database=os.getenv("DB_NAME", "rvsply_db"),
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASSWORD", "root"),
+        port=int(os.getenv("DB_PORT", "5432")),
     )
+
+
+@app.get("/health")
+def health():
+    return jsonify({"status": "ok"})
 
 # ==========================================================
 # USER AUTH (REGISTER)
@@ -308,7 +323,8 @@ def rsvp():
         conn.commit()
         cur.close()
 
-        qr_data = f"http://127.0.0.1:5500/frontend/html/checkin.html?guest_id={guest_id}&event_id={event_id}"
+        frontend_url = os.getenv("FRONTEND_URL", "http://127.0.0.1:5500/frontend/html/index.html")
+        qr_data = f"{frontend_url}?guest_id={guest_id}&event_id={event_id}"
         qr_img = qrcode.make(qr_data)
 
         buf = BytesIO()
@@ -380,4 +396,4 @@ def export_excel(event_id):
 # RUN SERVER
 # ==========================================================
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")), debug=os.getenv("FLASK_DEBUG") == "1")
