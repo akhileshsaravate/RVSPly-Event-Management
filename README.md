@@ -20,10 +20,13 @@ RVSPly is a campus event discovery and RSVP app. The static frontend calls a Fla
 - Registration and login backed by the Flask API
 - Event creation, editing, and deletion backed by PostgreSQL
 - RSVP tracking and shared guest lists
+- RSVP QR codes with event organizer check-in
 - Light/dark theme preference stored in the browser
 - Flask API with PostgreSQL storage
 
 ## Cloud demo architecture
+
+See [CLOUD_HANDOFF.md](CLOUD_HANDOFF.md) for the cloud deployment status, provider configuration, check-in flow, security notes, and remaining rollout steps.
 
 - **Neon** provides PostgreSQL.
 - **Render** hosts the Flask API.
@@ -67,11 +70,13 @@ CREATE TABLE IF NOT EXISTS guests (
     event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     status TEXT NOT NULL,
-    time_stamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    time_stamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    checkin_token TEXT NOT NULL UNIQUE DEFAULT gen_random_uuid()::text,
+    checked_in_at TIMESTAMPTZ
 );
 ```
 
-Use Neon's pooled connection string as Render's `DATABASE_URL`. Keep it private.
+For the full schema, use `backend/schema.sql`. If upgrading an existing database, also apply `backend/migrations/001_add_rsvp_checkin.sql`. Use Neon's pooled connection string as Render's `DATABASE_URL`. Keep it private.
 
 ## Deploy the Flask API on Render
 
@@ -102,13 +107,14 @@ The frontend is published on Cloudflare Pages with a direct upload. Upload the c
 
 ```text
 frontend/
-  html/       Landing page and event dashboard
+  html/       Landing page, event dashboard, and QR check-in page
   images/     Frontend image assets
   script/     UI behavior and API configuration
   style/      Responsive page styles
 backend/
   app.py      Flask API
   schema.sql  PostgreSQL schema
+  migrations/ Database migrations
   requirements.txt
 ```
 
