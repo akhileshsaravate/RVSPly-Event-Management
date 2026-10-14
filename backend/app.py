@@ -188,9 +188,18 @@ def get_events():
             cur.execute("SELECT * FROM events WHERE visibility='public' ORDER BY id DESC")
 
         rows = cur.fetchall()
+        events = []
+        for row in rows:
+            event = dict(row)
+            if event.get("date") is not None:
+                event["date"] = event["date"].isoformat()
+            if event.get("time") is not None:
+                event["time"] = event["time"].isoformat()
+            events.append(event)
+
         cur.close()
         conn.close()
-        return jsonify(rows)
+        return jsonify(events)
 
     except Exception as e:
         print("[GET EVENTS ERROR]:", e)
