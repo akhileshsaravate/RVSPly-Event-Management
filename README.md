@@ -1,8 +1,8 @@
-# RVSPly — Frontend Preview
+# RVSPly — Event Management
 
-RVSPly is a campus event discovery and RSVP experience. The **frontend phase is ready for demonstration**: it includes a responsive landing page, preview account flow, event dashboard, event creation/editing/deletion, RSVP selection, guest lists, and a saved theme preference.
+RVSPly is a campus event discovery and RSVP app. The static frontend calls a Flask API backed by PostgreSQL for registration, login, events, RSVPs, and guest lists.
 
-**Live website:** [Open the RVSPly frontend preview](https://akhileshsaravate.github.io/RVSPly-Event-Management/html/)
+**Live website:** [Open the RVSPly cloud demo](https://rvsply-event-management-demo.pages.dev/html/)
 
 ## Project team
 
@@ -14,59 +14,109 @@ RVSPly is a campus event discovery and RSVP experience. The **frontend phase is 
 
 **Under the guidance of Navnath Shete Sir**
 
-## Current project phase
-
-The frontend currently runs in **preview mode** and stores its sample account, events, and RSVP responses in the browser's local storage. This makes it possible to demonstrate the interface without installing Python, PostgreSQL, or starting the backend. Preview data stays in that browser and is not a real account or shared database record.
-
-A preliminary Flask backend prototype is included in `backend/` to show the planned server-side direction. Full frontend-to-backend integration, database setup, and cloud deployment are the next project phase and are planned for the coming month. The frontend preview works independently; its sample login and events are browser-local demo data, not production authentication or cloud-backed records.
-
-## Run the frontend preview
-
-1. Install Visual Studio Code and the **Live Server** extension.
-2. Download/clone the repository and open its folder in VS Code.
-3. In the VS Code file explorer, open `frontend/html/index.html`.
-4. Right-click in the file and select **Open with Live Server**.
-5. Select **Get started**, make a preview account, then sign in. Create an event or RSVP to see the dashboard interactions.
-
-No Python packages or database setup are needed for this frontend-only preview. The preview account password is stored locally in the browser and is only for demonstration; do not reuse a real password.
-
-## Frontend features ready to present
+## Features
 
 - Responsive landing page with navigation, event-focused content, and calls to action
-- Registration and login preview flow
-- Event dashboard populated with sample events
-- Create, edit, and delete events in the current browser
-- RSVP choices and local guest list
-- Light/dark theme preference
-- Clear preview labels showing that backend integration is in progress
+- Registration and login backed by the Flask API
+- Event creation, editing, and deletion backed by PostgreSQL
+- RSVP tracking and shared guest lists
+- RSVP QR codes with event organizer check-in
+- Light/dark theme preference stored in the browser
+- Flask API with PostgreSQL storage
 
-## Next phase: backend and cloud integration
+## Cloud demo architecture
 
-The frontend has a configurable API base URL in `frontend/script/config.js`. It is currently in preview mode:
+See [CLOUD_HANDOFF.md](CLOUD_HANDOFF.md) for the cloud deployment status, provider configuration, check-in flow, security notes, and remaining rollout steps.
+
+- **Neon** provides PostgreSQL.
+- **Render** hosts the Flask API.
+- **Cloudflare Pages** serves the static frontend from the `frontend` directory.
+
+The frontend API settings are in `frontend/script/config.js`. Keep credentials out of this file; set them in the cloud provider's environment settings.
 
 ```js
-window.RVSPLY_DEMO_MODE = true;
-window.RVSPLY_API_BASE = "http://127.0.0.1:5000";
+window.RVSPLY_DEMO_MODE = false;
+window.RVSPLY_API_BASE = "https://rvsply-api-demo.onrender.com";
 ```
 
-When backend integration begins, the API team can switch the preview flag off, configure the deployed API URL, and connect the forms and event actions to Flask. The intended cloud architecture is a static frontend host/CDN, a hosted Flask API, and managed PostgreSQL. Cloud infrastructure is a planned part of the upcoming phase; this repository does not currently provision or deploy those services.
+Change the API URL if the Render service uses another name.
+
+## Create the Neon database
+
+Run the following SQL in the Neon SQL Editor:
+
+```sql
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS events (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    date DATE,
+    time TIME,
+    venue TEXT,
+    description TEXT,
+    image_url TEXT DEFAULT '',
+    created_by INTEGER REFERENCES users(id),
+    visibility TEXT DEFAULT 'public'
+);
+
+CREATE TABLE IF NOT EXISTS guests (
+    id SERIAL PRIMARY KEY,
+    event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    status TEXT NOT NULL,
+    time_stamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    checkin_token TEXT NOT NULL UNIQUE DEFAULT gen_random_uuid()::text,
+    checked_in_at TIMESTAMPTZ
+);
+```
+
+For the full schema, use `backend/schema.sql`. If upgrading an existing database, also apply `backend/migrations/001_add_rsvp_checkin.sql`. Use Neon's pooled connection string as Render's `DATABASE_URL`. Keep it private.
+
+## Deploy the Flask API on Render
+
+Create a free Web Service from this repository with these settings:
+
+| Setting | Value |
+| --- | --- |
+| Branch | `cloud-deployment` |
+| Root directory | `backend` |
+| Runtime | Python |
+| Build command | `pip install -r requirements.txt` |
+| Start command | `gunicorn --bind 0.0.0.0:$PORT app:app` |
+| Health check path | `/health` |
+
+Add these environment variables in Render:
+
+- `DATABASE_URL`: Neon's pooled connection string
+- `FRONTEND_URL`: the deployed frontend page URL, ending in `/html/index.html`
+- `FRONTEND_ORIGINS`: the frontend origin only (for example, `https://your-site.pages.dev`)
+
+The free Render web service sleeps after 15 minutes of inactivity and can take about a minute to wake. Free services are intended for demos and testing.
+
+## Deploy the frontend on Cloudflare Pages
+
+The frontend is published on Cloudflare Pages with a direct upload. Upload the contents of the `frontend` directory (including `index.html`, `html`, `images`, `script`, and `style`). There is no build command. The landing page is served at `/html/`.
 
 ## Project structure
 
 ```text
 frontend/
-  html/       Landing page and event dashboard
+  html/       Landing page, event dashboard, and QR check-in page
   images/     Frontend image assets
-  script/     UI behavior, API configuration, and preview data flow
+  script/     UI behavior and API configuration
   style/      Responsive page styles
 backend/
-  app.py      Existing Flask API prototype
+  app.py      Flask API
+  schema.sql  PostgreSQL schema
+  migrations/ Database migrations
   requirements.txt
 ```
-
-## Backend work in progress
-
-A starter Flask API prototype and its dependency list are present under `backend/` as a preview of upcoming server-side work. The backend is not yet integrated with the frontend preview. Database schema/configuration, API integration, security hardening, and cloud deployment are planned for the next project phase.
 
 ## Landing page photography
 
